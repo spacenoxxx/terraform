@@ -1,0 +1,38 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: ubuntu
+    password: $6$bnNG20NwjfM3E6m.$hE37w/n.c8ozzotMnXIebcquWJ/HH8mDapBBvYrLyKfLj8Rpu2lzBylBvT9o3o8NQFSJXpHiotu8S/1LzS1GK1
+    realname: Rudra
+    username: rudra
+  keyboard:
+    layout: us
+    toggle: null
+    variant: ''
+  locale: en_US.UTF-8
+  timezone: Asia/Kolkata
+  network:
+    ethernets:
+      eth0:
+        dhcp4: true
+    version: 2
+  kernel:
+    package: linux-generic
+  source:
+    id: ubuntu-server-minimal
+    search_drivers: false
+  ssh:
+    allow-pw: true
+    authorized-keys: []
+    install-server: true
+  updates: security
+  shutdown: reboot
+  late-commands:
+    - curtin in-target -- apt-get update
+    - curtin in-target -- apt-get install -y vim git
+    - curtin in-target -- cp /cdrom/nocloud/docker-setup.sh /usr/local/bin/
+    - curtin in-target -- chmod +x /usr/local/bin/docker-setup.sh
+    - curtin in-target -- cp /cdrom/nocloud/git-setup.sh /usr/local/bin/
+    - curtin in-target -- chmod +x /usr/local/bin/git-setup.sh
+
