@@ -174,11 +174,13 @@ menuentry "Autoinstall Ubuntu Server" {
 Repack the modified ISO. The resulting ISO will be created under /tmp:
 ```bash
 cd /tmp/source-files
-xorriso -as mkisofs -r -V "ubuntu-autoinstall" -J -boot-load-size 4 -boot-info-table -input-charset utf-8 -eltorito-alt-boot -b bootpart/eltorito_img1_bios.img -no-emul-boot -o ../installer.iso .
+xorriso -as mkisofs -r -V "ubuntu-autoinstall" -J -boot-load-size 4 -boot-info-table -input-charset utf-8 \
+-eltorito-alt-boot -b bootpart/eltorito_img1_bios.img -no-emul-boot -o ../installer.iso .
 ```
 
 ```vbnet
 
-This text can be pasted directly into your README.md file. It includes all the headers and code sections together as you requested.
+This text can be pasted directly into your README.md file. It includes all the headers and code sections \
+together as you requested.
 
 ```
