@@ -32,7 +32,8 @@ Create a folder to hold the extracted contents and extract the ISO:
 
 ```bash
 mkdir /tmp/source-files
-xorriso -osirrox on -indev ubuntu-22.04.2-live-server-amd64.iso --extract_boot_images source-files/bootpart -extract / source-files
+xorriso -osirrox on -indev ubuntu-22.04.2-live-server-amd64.iso --extract_boot_images source-files/bootpart \
+--extract / source-files
 ```
 
 ### 3. Create 'nocloud' Directory and Necessary Files
