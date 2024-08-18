@@ -11,7 +11,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.
 apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-PAT=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
+PAT=<insert_your_PAT_here>
 
 # setup git
 git_url="https://$PAT@github.com/GridSentry-Pvt-Ltd/G-Scan-Deployment"
