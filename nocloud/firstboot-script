@@ -1,0 +1,11 @@
+[Unit]
+Description=Run script at first boot
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/setup-gscan.sh
+Type=oneshot
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
