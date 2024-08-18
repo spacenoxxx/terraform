@@ -1,0 +1,99 @@
+#cloud-config
+autoinstall:
+  # version is an Autoinstall required field.
+  version: 1
+
+  # This adds the default ubuntu-desktop packages to the system.
+  # Any desired additional packages may also be listed here.
+  packages:
+    - ubuntu-desktop
+
+  # This adds the default snaps found on a 22.04 Ubuntu Desktop system.
+  # Any desired additional snaps may also be listed here.
+  snaps:
+    - name: firefox
+    - name: gnome-3-38-2004
+    - name: gtk-common-themes
+    - name: snap-store
+    - name: snapd-desktop-integration
+
+  # User creation can occur in one of 3 ways:
+  # 1. Create a user using this `identity` section.
+  # 2. Create users as documented in cloud-init inside the user-data section,
+  #    which means this single-user identity section may be removed.
+  # 3. Prompt for user configuration on first boot.  Remove this identity
+  #    section and see the "Installation without a default user" section.
+  identity:
+    # A password hash is needed. `mkpasswd --method=SHA-512` can help.
+    # mkpasswd can be found in the package 'whois'
+    hostname: ubuntu-desktop
+    password: $6$bnNG20NwjfM3E6m.$hE37w/n.c8ozzotMnXIebcquWJ/HH8mDapBBvYrLyKfLj8Rpu2lzBylBvT9o3o8NQFSJXpHiotu8S/1LzS1GK1
+    realname: Rudra
+    username: rudra
+
+  # Subiquity will, by default, configure a partition layout using LVM.
+  # The 'direct' layout method shown here will produce a non-LVM result.
+  storage:
+    layout:
+      name: direct
+
+  # Ubuntu Desktop uses the hwe flavor kernel by default.
+  early-commands:
+    - echo 'linux-generic-hwe-24.04' > /run/kernel-meta-package
+
+  # The live-server ISO does not contain some of the required packages,
+  # such as ubuntu-desktop or the hwe kernel (or most of their depdendencies).
+
+  ssh:
+    allow-pw: true
+    authorized-keys: []
+    install-server: true
+  updates: security
+  shutdown: reboot
+
+
+  late-commands:
+    # Enable the boot splash
+    - >-
+      curtin in-target --
+      sed -i /etc/default/grub -e
+      's/GRUB_CMDLINE_LINUX_DEFAULT=".*/GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"/'
+    - curtin in-target -- update-grub
+
+    # Let NetworkManager handle network
+    #- rm /target/etc/netplan/00-installer-config*yaml
+    #- >-
+    #  printf "network:\n  version: 2\n  renderer: NetworkManager"
+    #  > /target/etc/netplan/01-network-manager-all.yaml
+
+    # Remove default filesystem and related tools not used with the suggested
+    # 'direct' storage layout.  These may yet be required if different
+    # partitioning schemes are used.
+    - >-
+      curtin in-target -- apt-get remove -y
+      btrfs-progs cryptsetup* lvm2 xfsprogs
+
+    # Remove other packages present by default in Ubuntu Server but not
+    # normally present in Ubuntu Desktop.
+    - >-
+      curtin in-target -- apt-get remove -y
+      ubuntu-server ubuntu-server-minimal
+      binutils byobu dmeventd finalrd gawk
+      kpartx mdadm ncurses-term needrestart open-iscsi
+      sg3-utils ssh-import-id sssd thin-provisioning-tools tmux
+      sosreport screen open-vm-tools motd-news-config lxd-agent-loader
+      landscape-common htop fonts-ubuntu-console ethtool
+
+    # Keep cloud-init, as it performs some of the installation on first boot.
+    - curtin in-target -- apt-get install -y cloud-init
+
+    # Finally, remove things only installed as dependencies of other things
+    # we have already removed.
+    - curtin in-target -- apt-get autoremove -y
+    - curtin in-target -- apt-get update
+    - curtin in-target -- apt-get install -y vim git
+    - curtin in-target -- cp /cdrom/nocloud/setup-gscan.sh /usr/local/bin/
+    - curtin in-target -- cp /cdrom/nocloud/firstboot-script /etc/systemd/system/firstboot-script.service
+    - curtin in-target -- chmod +x /etc/systemd/system/firstboot-script.service
+    - curtin in-target -- chmod +x /usr/local/bin/setup-gscan.sh
+    - curtin in-target -- systemctl enable firstboot-script.service
